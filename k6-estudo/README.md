@@ -322,6 +322,112 @@ k6-estudo/
 - **Thresholds**: Personalizáveis por teste
 - **Métricas**: Customizadas para cada cenário
 
+## 🚀 **Como Executar Este Projeto**
+
+### 📥 **1. Download e Instalação**
+
+#### **Clone do Repositório**
+```powershell
+# Clone o repositório
+git clone <URL-DO-REPOSITORIO>
+cd k6-estudo
+
+# Ou baixe e extraia o ZIP do projeto
+```
+
+#### **Instalar k6**
+```powershell
+# Windows (recomendado)
+winget install Grafana.k6 --silent --accept-source-agreements --accept-package-agreements
+
+# Verificar instalação
+k6 version
+```
+
+#### **Verificar Estrutura**
+```
+k6-estudo/
+├── scripts/              # Todos os testes de performance
+├── config/               # Configurações de ambiente  
+├── utils/                # Utilitários reutilizáveis
+├── results/              # Resultados dos testes
+├── run.ps1              # Script para execução individual
+├── run-all.ps1          # Script para execução em lote
+└── README.md            # Este guia
+```
+
+### ▶️ **2. Primeiros Passos - Testes Básicos**
+
+#### **Teste Rápido (30 segundos)**
+```powershell
+# Verificar se o sistema básico funciona
+.\run.ps1 smoke
+```
+
+#### **Teste de Arquitetura (2 minutos)**  
+```powershell
+# Teste controlado com 5 usuários
+.\run.ps1 architecture-test
+```
+
+#### **Sequência Recomendada para Iniciantes (10 minutos)**
+```powershell
+.\run.ps1 smoke           # 30s - Verificação básica
+.\run.ps1 architecture-test # 2min - Arquitetura controlada  
+.\run.ps1 load            # 4min - Carga normal
+.\run.ps1 auth            # 2min - Fluxos de autenticação
+```
+
+### 📊 **3. Visualizar Resultados**
+
+#### **Console (Imediato)**
+Os resultados aparecem diretamente no terminal com:
+- ✅ Checks (validações) que passaram/falharam
+- 📈 Métricas de performance (tempo, throughput, erros)
+- 📋 Resumo customizado no final
+
+#### **Arquivos Detalhados**
+```powershell
+# Resultados salvos automaticamente em:
+ls results/20250812-194440/
+
+# Arquivos gerados:
+# - teste.summary.json (métricas técnicas)
+# - teste.console.log (logs detalhados)  
+# - aggregate.json (resumo da execução)
+```
+
+#### **Dashboard Visual (Opcional)**
+```powershell
+# Subir Grafana + InfluxDB
+docker compose up -d
+
+# Acessar dashboard
+# http://localhost:3000 (admin/admin)
+```
+
+### 🎯 **4. Testes Avançados**
+
+#### **Para Desenvolvedores**
+```powershell
+.\run.ps1 api-crud        # 3min - Testa CRUD completo
+.\run.ps1 volume          # 15min - Grandes volumes
+.\run.ps1 spike           # 1min - Picos súbitos
+```
+
+#### **Para DevOps/SRE**  
+```powershell
+.\run.ps1 stress          # 11min - Testa limites
+.\run.ps1 soak            # 40min - Estabilidade longa
+.\run.ps1 breaking-point  # 43min - Encontra limite exato
+```
+
+#### **Suite Completa**
+```powershell
+# Executa todos os testes (4+ horas)
+.\run-all.ps1
+```
+
 ## 📋 Pré-requisitos
 
 ### 💻 **Requisitos de Sistema**
@@ -535,6 +641,23 @@ k6 run scripts/api-crud.js
 .\run.ps1 api-crud
 ```
 
+### 🏗️ Architecture Test (`scripts/architecture-test.js`)
+- **Objetivo**: Teste controlado da arquitetura do sistema
+- **Cenários**: Sistema básico, operações API, fluxo do usuário
+- **Duração**: ~2 minutos
+- **VUs**: 5
+```bash
+k6 run scripts/architecture-test.js
+# ou
+.\run.ps1 architecture-test
+```
+
+**Cenário implementado**:
+- Health check e conectividade básica
+- Operações de API: leitura, criação, consultas com filtros
+- Fluxo realístico do usuário: navegação, busca, interações
+- Thresholds tolerantes para testes com APIs públicas
+
 ## 🚀 **Guia de Execução dos Testes**
 
 ### 🎯 **Estratégia de Execução Recomendada**
@@ -640,41 +763,88 @@ Veja em qual estágio começaram os erros:
 
 **📂 Localização**: `results/YYYYMMDD-HHmmss/`
 
-**📄 `teste.summary.json`** - Métricas técnicas:
+**📄 `teste.summary.json`** - Métricas técnicas detalhadas:
 ```json
 {
   "metrics": {
     "http_req_duration": {
-      "values": {
-        "avg": 245.67,
-        "p(95)": 789.23,  // ← 95% das requisições abaixo deste valor
-        "p(99)": 1234.56  // ← 99% das requisições abaixo deste valor  
-      }
+      "avg": 200.18,       // ← Tempo médio de resposta
+      "p(95)": 570.89,     // ← 95% das requisições abaixo deste valor
+      "p(90)": 352.17,     // ← 90% das requisições abaixo deste valor
+      "max": 1899.05       // ← Tempo máximo observado
     },
     "http_req_failed": {
-      "values": {
-        "rate": 0.0123    // ← Taxa de erro (1.23%)
-      }
+      "value": 0.0039      // ← Taxa de erro (0.39%)
+    },
+    "checks": {
+      "passes": 1118,      // ← Quantas validações passaram
+      "fails": 4,          // ← Quantas validações falharam  
+      "value": 0.9964      // ← Taxa de sucesso (99.64%)
+    },
+    "iterations": {
+      "count": 51,         // ← Quantos ciclos completos
+      "rate": 0.39         // ← Ciclos por segundo
     }
   }
 }
 ```
 
-**📄 `teste.console.log`** - Logs de execução:
+**📄 `teste.console.log`** - Logs de execução com detalhes:
 ```
-✓ API health check passed
-✓ response contains expected data  
-✓ system health stable after iterations
+[Architecture Test] VU 1 - Iniciando teste de arquitetura
+[Architecture Test] VU 1 - Testando sistema básico
+[Architecture Test] VU 1 - Testando operações de API
+[Architecture Test] VU 1 - Testando fluxo do usuário
+[Architecture Test] VU 1 - Teste concluído com sucesso
+
+=== RESUMO DO TESTE DE ARQUITETURA ===
+Usuários Virtuais: 5
+Requisições Totais: 510
+Taxa de Erro: 0.39%
+Tempo Médio de Resposta: 200.18ms
+P95 Tempo de Resposta: 570.89ms
 ```
 
-**📄 `aggregate.json`** - Resumo de todos os testes:
+**📄 `aggregate.json`** - Resumo de todos os testes executados:
 ```json
 {
+  "startedAt": "2025-08-12T19:46:54",
+  "runDir": "C:\\Users\\...\\results\\20250812-194440",
   "results": [
-    { "scenario": "smoke", "status": "passed" },
-    { "scenario": "load", "status": "failed" }  // ← Parar aqui!
+    {
+      "Scenario": "architecture-test",
+      "Status": "failed",         // ← Status final do teste
+      "ExitCode": 99,             // ← Código de saída
+      "Summary": "path/to/summary.json",
+      "Log": "path/to/console.log"
+    }
   ]
 }
+```
+
+#### **🎯 Como Usar os Relatórios**
+
+**1. 📊 Análise Rápida** - Verifique primeiro o `aggregate.json`:
+- `Status: "passed"` = ✅ Teste bem-sucedido
+- `Status: "failed"` = ❌ Thresholds quebrados (mas pode ter funcionado bem)
+
+**2. 📈 Análise Detalhada** - Abra o `summary.json`:
+- `http_req_duration.avg < 500ms` = ✅ Resposta rápida
+- `http_req_failed.value < 0.01` = ✅ Baixa taxa de erro  
+- `checks.value > 0.95` = ✅ 95%+ das validações passaram
+
+**3. 🔍 Debugging** - Consulte o `console.log`:
+- Logs detalhados de cada VU (Virtual User)
+- Mensagens de erro específicas
+- Progresso temporal do teste
+
+**4. 📋 Relatório para Stakeholders**:
+```
+✅ Sistema testado com 5 usuários simultâneos
+📊 510 requisições processadas em 2 minutos  
+⚡ 99.64% de taxa de sucesso
+🚀 Tempo médio de resposta: 200ms
+🎯 95% das requisições abaixo de 571ms
 ```
 
 ## 🌍 Configuração de Ambientes

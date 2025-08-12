@@ -97,3 +97,4 @@ export function teardown(data) {
   console.log(`\n⏱️ Verificação concluída em ${totalTime}ms`);
   console.log('🎯 Execute os testes recomendados baseados na sua máquina!');
 }
+
