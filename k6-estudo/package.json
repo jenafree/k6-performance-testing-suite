@@ -1,0 +1,36 @@
+{
+  "name": "k6-estudo",
+  "version": "1.0.0",
+  "description": "Pré-requisitos",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --ext .js scripts utils config",
+    "typecheck": "tsc -p tsconfig.json",
+    "test:smoke": "k6 run scripts/smoke.js",
+    "test:load": "k6 run scripts/load.js",
+    "test:stress": "k6 run scripts/stress.js",
+    "test:spike": "k6 run scripts/spike.js",
+    "test:soak": "k6 run scripts/soak.js",
+    "test:auth": "k6 run scripts/auth.js",
+    "test:api-crud": "k6 run scripts/api-crud.js",
+    "test:breaking-point": "k6 run scripts/breaking-point.js",
+    "test:capacity": "k6 run scripts/capacity.js",
+    "test:endurance": "k6 run scripts/endurance.js",
+    "test:volume": "k6 run scripts/volume.js",
+    "test:all": "powershell -ExecutionPolicy Bypass ./run-all.ps1",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:test": "docker compose run --rm k6 run -o influxdb=http://influxdb:8086/k6"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "@types/k6": "^1.1.1",
+    "eslint": "^9.33.0",
+    "globals": "^16.3.0",
+    "typescript": "^5.9.2"
+  }
+}
