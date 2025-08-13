@@ -1,0 +1,1 @@
+﻿{"ignore":["**/node_modules/**","**/results/**","**/docker/**"],"notes":"Arquivo de exemplo. Ajuste as regras diretamente no SonarLint caso prefira."}
