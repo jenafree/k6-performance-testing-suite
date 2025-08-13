@@ -1,0 +1,1 @@
+# Pasta data\n\nUse esta pasta para armazenar arquivos auxiliares dos testes (payloads, datasets, fixtures).\n\nExemplos:\n- payloads/large.json\n- csv/users.csv\n- fixtures/example.txt\n\nObservação: arquivos grandes/sensíveis devem ser adicionados ao .gitignore.
